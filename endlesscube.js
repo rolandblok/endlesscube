@@ -39,9 +39,18 @@ class Squares {
       this.color_3 = "#eeeeee"
       this.gui = new dat.GUI();
       this.gui_colors = this.gui.addFolder('colors')
-      this.gui_colors.addColor(this, "color_1").onChange(function() { me.material_1.color.set(me.color_1) })
-      this.gui_colors.addColor(this, "color_2").onChange(function() { me.material_2.color.set(me.color_2) })
-      this.gui_colors.addColor(this, "color_3").onChange(function() { me.material_3.color.set(me.color_3) })
+      this.gui_colors.addColor(this, "color_1").onChange( function() { 
+            for ( let x = 0 ; x < me.XS ; x ++ ) {
+              for (let y = 0; y < me.YS; y ++) {
+                me.material_1[x][y].color.set(me.color_1) }}})
+      this.gui_colors.addColor(this, "color_2").onChange( function() { 
+            for ( let x = 0 ; x < me.XS ; x ++ ) {
+              for (let y = 0; y < me.YS; y ++) {
+                me.material_2[x][y].color.set(me.color_2) }}})
+      this.gui_colors.addColor(this, "color_3").onChange( function() { 
+            for ( let x = 0 ; x < me.XS ; x ++ ) {
+              for (let y = 0; y < me.YS; y ++) {
+                me.material_3[x][y].color.set(me.color_3) }}})
       this.gui_colors.open();
 
      
@@ -53,8 +62,8 @@ class Squares {
 
       this.THREEcamera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 2000 );
       this.THREEcamera.up.set(0,1,0);
-      this.THREEcamera.position.set(0,0,50)
-      this.THREEcamera.lookAt(0,   0,  0)
+      this.THREEcamera.position.set(40, 30,50)
+      this.THREEcamera.lookAt(40,  30,  0)
 
       /*
       this.fov = 55
@@ -76,60 +85,84 @@ class Squares {
       // raycaster
       this.raycaster = new THREE.Raycaster(); 
 
-      for ( let x = -10; x < 10; x ++ ) {
-        for (let y = -10; y < 10; y ++) {
+      this.XS = 20;
+      this.YS = 20;
+
+      this.square_geom_1 = []
+      this.material_1    = []
+      this.square_mesh_1 = []
+
+      this.square_geom_2 = []
+      this.material_2    = []
+      this.square_mesh_2 = []
+
+      this.square_geom_3 = []
+      this.material_3    = []
+      this.square_mesh_3 = []
+
+     for ( let x = 0 ; x < this.XS ; x ++ ) {
+        for (let y = 0; y < this.YS; y ++) {
+          if (!this.square_geom_1[x]) {  this.square_geom_1[x] = [] }
+          if (!this.material_1[x])    {  this.material_1[x] = []    }
+          if (!this.square_mesh_1[x]) {  this.square_mesh_1[x] = [] }
+          if (!this.square_geom_2[x]) {  this.square_geom_2[x] = [] }
+          if (!this.material_2[x])    {  this.material_2[x] = []    }
+          if (!this.square_mesh_2[x]) {  this.square_mesh_2[x] = [] }
+          if (!this.square_geom_3[x]) {  this.square_geom_3[x] = [] }
+          if (!this.material_3[x])    {  this.material_3[x] = []    }
+          if (!this.square_mesh_3[x]) {  this.square_mesh_3[x] = [] }
 
           let x_off = x * 4 + 2 * ( y % 2 ) ; 
           let y_off = y * 3; 
 
-          // objects
-          this.square_geom = new THREE.Geometry();
-          this.square_geom.vertices.push(new THREE.Vector3(0, 0, 0), 
+          // FACE # 1
+          this.square_geom_1[x][y] = new THREE.Geometry();
+          this.square_geom_1[x][y].vertices.push(new THREE.Vector3(0, 0, 0), 
                                         new THREE.Vector3(2, -1, 0),
                                         new THREE.Vector3(4, 0, 0), 
                                         new THREE.Vector3(2, 1, 0) );
-          this.square_geom.faces.push( new THREE.Face3(0, 1, 2),
+          this.square_geom_1[x][y].faces.push( new THREE.Face3(0, 1, 2),
                                       new THREE.Face3(0, 2, 3));
           
-          this.material_1 = new THREE.MeshBasicMaterial( {color: 0xaaaaaa} );
-          this.square_mesh1 = new THREE.Mesh( this.square_geom, this.material_1)
-          this.three_scene.add(  this.square_mesh1 );
+          this.material_1[x][y] = new THREE.MeshBasicMaterial( {color: this.color_1} );
+          this.square_mesh_1[x][y] = new THREE.Mesh( this.square_geom_1[x][y], this.material_1[x][y])
+          this.three_scene.add(  this.square_mesh_1[x][y] );
 
-          this.square_geom2 = new THREE.Geometry();
-          this.square_geom2.vertices.push(new THREE.Vector3(2, 1, 0), 
+          // FACE #2
+          this.square_geom_2[x][y] = new THREE.Geometry();
+          this.square_geom_2[x][y].vertices.push(new THREE.Vector3(2, 1, 0), 
                                         new THREE.Vector3(4, 0, 0),
                                         new THREE.Vector3(4, 2, 0), 
                                         new THREE.Vector3(2, 3, 0) );
-          this.square_geom2.faces.push( new THREE.Face3(0, 1, 2),
+          this.square_geom_2[x][y].faces.push( new THREE.Face3(0, 1, 2),
                                       new THREE.Face3(0, 2, 3));
           
-          this.material_2 = new THREE.MeshBasicMaterial( {color: 0xcccccc} );
-          //let material = new THREE.MeshPhongMaterial( {color:"#00ff00"} );
-          this.square_mesh2 = new THREE.Mesh( this.square_geom2, this.material_2)
-          this.three_scene.add(  this.square_mesh2 );
+          this.material_2[x][y] = new THREE.MeshBasicMaterial( {color: this.color_2} );
+          //this.material_2[x][y] = new THREE.MeshPhongMaterial( {color: this.color_2} );
+          this.square_mesh_2[x][y] = new THREE.Mesh( this.square_geom_2[x][y], this.material_2[x][y])
+          this.three_scene.add(  this.square_mesh_2[x][y] );
 
-          this.square_geom3 = new THREE.Geometry();
-          this.square_geom3.vertices.push(new THREE.Vector3(0, 0, 0), 
+          // FACE #3
+          this.square_geom_3[x][y] = new THREE.Geometry();
+          this.square_geom_3[x][y].vertices.push(new THREE.Vector3(0, 0, 0), 
                                           new THREE.Vector3(2, 1, 0),
                                           new THREE.Vector3(2, 3, 0), 
                                           new THREE.Vector3(0, 2, 0) );
-          this.square_geom3.faces.push( new THREE.Face3(0, 1, 2),
+          this.square_geom_3[x][y].faces.push( new THREE.Face3(0, 1, 2),
                                       new THREE.Face3(0, 2, 3));
 
-
-          
-
-          this.material_3 = new THREE.MeshBasicMaterial( {color: 0xeeeeee} );
+          this.material_3[x][y] = new THREE.MeshBasicMaterial( {color: this.color_3} );
           //let material = new THREE.MeshPhongMaterial( {color:"#00ff00"} );
-          this.square_mesh3 = new THREE.Mesh( this.square_geom3, this.material_3)
+          this.square_mesh_3[x][y] = new THREE.Mesh( this.square_geom_3[x][y], this.material_3[x][y])
+          this.three_scene.add(  this.square_mesh_3[x][y] );
           
-          this.square_mesh1.position.x = x_off;
-          this.square_mesh1.position.y = y_off;
-          this.square_mesh2.position.x = x_off;
-          this.square_mesh2.position.y = y_off;
-          this.square_mesh3.position.x = x_off;
-          this.square_mesh3.position.y = y_off;
-          this.three_scene.add(  this.square_mesh3 );
+          // POSITION
+          this.square_mesh_1[x][y].position.x = x_off;
+          this.square_mesh_1[x][y].position.y = y_off;
+          this.square_mesh_2[x][y].position.x = x_off;
+          this.square_mesh_2[x][y].position.y = y_off;
+          this.square_mesh_3[x][y].position.x = x_off;
+          this.square_mesh_3[x][y].position.y = y_off;
 
         }
       }
